@@ -25,7 +25,15 @@ async function searchRecord(
       }
     );
 
-  return response.data || [];
+  const records = response.data || [];
+
+  if (!records.length) {
+    throw new Error(
+      `${moduleName} record not found for ${fieldName}=${fieldValue}`
+    );
+  }
+
+  return records[0];
 }
 
 module.exports = {

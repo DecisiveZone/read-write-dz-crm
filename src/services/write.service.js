@@ -57,6 +57,65 @@ async function writeRecords(payload) {
       },
     };
 
+    // LICENSE LOOKUPS
+
+    if (module === "Licenses") {
+      if (payload.deal_search_field && payload.deal_search_value) {
+        const deal = await searchRecord(
+          "Deals",
+          payload.deal_search_field,
+          payload.deal_search_value,
+        );
+
+        payloadData.Opportunity_Name = {
+          id: deal.id,
+        };
+      }
+
+      if (
+        payload.sales_closure_search_field &&
+        payload.sales_closure_search_value
+      ) {
+        const salesClosure = await searchRecord(
+          "Sales_Closures",
+          payload.sales_closure_search_field,
+          payload.sales_closure_search_value,
+        );
+
+        payloadData.Sales_Closure = {
+          id: salesClosure.id,
+        };
+      }
+    }
+
+    // VISA LOOKUPS
+
+    if (module === "Visas") {
+      if (payload.deal_search_field && payload.deal_search_value) {
+        const deal = await searchRecord(
+          "Deals",
+          payload.deal_search_field,
+          payload.deal_search_value,
+        );
+
+        payloadData.Related_Opportunity = {
+          id: deal.id,
+        };
+      }
+
+      if (payload.license_search_field && payload.license_search_value) {
+        const license = await searchRecord(
+          "Licenses",
+          payload.license_search_field,
+          payload.license_search_value,
+        );
+
+        payloadData.Related_License = {
+          id: license.id,
+        };
+      }
+    }
+    
     /*
      * DEALS
      * Auto link Contact
@@ -83,7 +142,8 @@ async function writeRecords(payload) {
       }
     }
 
-    //console.log("FINAL PAYLOAD =>", JSON.stringify(payloadData, null, 2));
+    // console.log("MODULE =", module);
+    // console.log("PAYLOAD =", JSON.stringify(payloadData || data, null, 2));
 
     return await createRecord(module, payloadData);
   }
