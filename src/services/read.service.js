@@ -2,6 +2,7 @@ const moduleMappings = require("../utils/moduleMappings");
 const { resolveCompany } = require("../utils/companyResolver");
 const { searchByCompany } = require("../utils/moduleSearch");
 const { searchRecord } = require("../utils/searchRecord");
+const { getRecordById } = require("../utils/getRecordById");
 
 async function readRecords(payload) {
 
@@ -9,7 +10,8 @@ async function readRecords(payload) {
         module,
         company_name,
         search_field,
-        search_value
+        search_value,
+        record_id
     } = payload;
 
     if (!module) {
@@ -22,6 +24,19 @@ async function readRecords(payload) {
         throw new Error(
             `Unsupported module ${module}`
         );
+    }
+
+    /*
+     * RECORD ID SEARCH
+     */
+
+    if (record_id) {
+
+        return await getRecordById(
+            module,
+            record_id
+        );
+
     }
 
     /*
@@ -47,7 +62,7 @@ async function readRecords(payload) {
 
     if (!company_name) {
         throw new Error(
-            "company_name OR search_field/search_value required"
+            "company_name OR record_id OR search_field/search_value required"
         );
     }
 

@@ -5,7 +5,17 @@ const { searchRecord } = require("../utils/searchRecord");
 const { updateRecord } = require("../utils/updateRecord");
 
 async function writeRecords(payload) {
-  const { sub_mode, module, company_name, data, contact_id, deal_id } = payload;
+  const {
+    sub_mode,
+    module,
+    company_name,
+    company_id,
+    data,
+    contact_id,
+    deal_id,
+    license_id,
+    sales_closure_id,
+  } = payload;
 
   if (!sub_mode) {
     throw new Error("sub_mode is required");
@@ -38,11 +48,19 @@ async function writeRecords(payload) {
    */
 
   if (sub_mode === "CREATE") {
-    if (!company_name) {
-      throw new Error("company_name is required");
-    }
+    let companyId;
 
-    const company = await resolveCompany(company_name);
+    if (company_id) {
+      companyId = company_id;
+    } else {
+      if (!company_name) {
+        throw new Error("company_name or company_id is required");
+      }
+
+      const company = await resolveCompany(company_name);
+
+      companyId = company.id;
+    }
 
     const lookupField = moduleConfig.companyLookup;
 
@@ -53,14 +71,18 @@ async function writeRecords(payload) {
     const payloadData = {
       ...data,
       [lookupField]: {
-        id: company.id,
+        id: companyId,
       },
     };
 
     // LICENSE LOOKUPS
 
     if (module === "Licenses") {
-      if (payload.deal_search_field && payload.deal_search_value) {
+      if (deal_id) {
+        payloadData.Opportunity_Name = {
+          id: deal_id,
+        };
+      } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
           "Deals",
           payload.deal_search_field,
@@ -72,7 +94,11 @@ async function writeRecords(payload) {
         };
       }
 
-      if (
+      if (sales_closure_id) {
+        payloadData.Sales_Closure = {
+          id: sales_closure_id,
+        };
+      } else if (
         payload.sales_closure_search_field &&
         payload.sales_closure_search_value
       ) {
@@ -91,7 +117,11 @@ async function writeRecords(payload) {
     // VISA LOOKUPS
 
     if (module === "Visas") {
-      if (payload.deal_search_field && payload.deal_search_value) {
+      if (deal_id) {
+        payloadData.Related_Opportunity = {
+          id: deal_id,
+        };
+      } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
           "Deals",
           payload.deal_search_field,
@@ -103,7 +133,11 @@ async function writeRecords(payload) {
         };
       }
 
-      if (payload.license_search_field && payload.license_search_value) {
+      if (license_id) {
+        payloadData.Related_License = {
+          id: license_id,
+        };
+      } else if (payload.license_search_field && payload.license_search_value) {
         const license = await searchRecord(
           "Licenses",
           payload.license_search_field,
@@ -115,7 +149,7 @@ async function writeRecords(payload) {
         };
       }
     }
-    
+
     /*
      * DEALS
      * Auto link Contact
@@ -158,6 +192,18 @@ async function writeRecords(payload) {
     if (!search_value) {
       throw new Error("search_value is required");
     }
+
+    /*
+     * DIRECT RECORD ID UPDATE
+     */
+
+    if (search_field.toLowerCase() === "id") {
+      return await updateRecord(module, search_value, data);
+    }
+
+    /*
+     * SEARCH + UPDATE
+     */
 
     const records = await searchRecord(module, search_field, search_value);
 
