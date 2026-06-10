@@ -6,20 +6,29 @@ dotenv.config();
 const dzcrmRoutes = require("./routes/dzcrm.routes");
 
 const app = express();
+const cors = require("cors");
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.use("/api/dzcrm", dzcrmRoutes);
 
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        service: "Read-Write DZ CRM API"
-    });
+  res.json({
+    success: true,
+    service: "Read-Write DZ CRM API",
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
