@@ -8,21 +8,9 @@ async function createRecord(moduleName, data) {
     throw new Error(`Unsupported module ${moduleName}`);
   }
 
-//   console.log("MODULE =", moduleName);
-//   console.log("API NAME =", moduleConfig.apiName);
-//   console.log(
-//     "REQUEST BODY =",
-//     JSON.stringify(
-//       {
-//         data: [data],
-//       },
-//       null,
-//       2,
-//     ),
-//   );
-
   const response = await zohoService.post(`/${moduleConfig.apiName}`, {
     data: [data],
+    trigger: ["workflow", "blueprint"],
   });
 
   return response;

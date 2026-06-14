@@ -6,7 +6,6 @@ async function searchRecord(
   fieldName,
   fieldValue
 ) {
-
   const moduleConfig =
     moduleMappings[moduleName];
 
@@ -25,7 +24,8 @@ async function searchRecord(
       }
     );
 
-  const records = response.data || [];
+  const records =
+    response.data || [];
 
   if (!records.length) {
     throw new Error(
@@ -37,5 +37,5 @@ async function searchRecord(
 }
 
 module.exports = {
-  searchRecord
+  searchRecord,
 };

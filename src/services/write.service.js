@@ -151,6 +151,64 @@ async function writeRecords(payload) {
     }
 
     /*
+     * DOCUMENT MANAGEMENT
+     */
+
+    if (module === "Document_Management") {
+      /*
+       * Opportunity Lookup
+       */
+
+      if (deal_id) {
+        payloadData.Opportunity = {
+          id: deal_id,
+        };
+      } else if (payload.deal_search_field && payload.deal_search_value) {
+        const deal = await searchRecord(
+          "Deals",
+          payload.deal_search_field,
+          payload.deal_search_value,
+        );
+
+        payloadData.Opportunity = {
+          id: deal.id,
+        };
+      }
+
+      /*
+       * Sales Closure
+       * Multi Select Lookup
+       */
+
+      if (sales_closure_id) {
+        payloadData.Sales_Closure = [
+          {
+            Sales_Closure: {
+              id: sales_closure_id,
+            },
+          },
+        ];
+      } else if (
+        payload.sales_closure_search_field &&
+        payload.sales_closure_search_value
+      ) {
+        const salesClosure = await searchRecord(
+          "Sales_Closures",
+          payload.sales_closure_search_field,
+          payload.sales_closure_search_value,
+        );
+
+        payloadData.Sales_Closure = [
+          {
+            Sales_Closure: {
+              id: salesClosure.id,
+            },
+          },
+        ];
+      }
+    }
+
+    /*
      * DEALS
      * Auto link Contact
      */
@@ -172,6 +230,49 @@ async function writeRecords(payload) {
       if (deal_id) {
         payloadData.Opportunity_Name = {
           id: deal_id,
+        };
+      }
+    }
+
+    /*
+     * COLLECTIONS
+     * Auto link Company + Deal + Contact
+     */
+
+    if (module === "Collections") {
+      // Opportunity Lookup
+
+      if (deal_id) {
+        payloadData.Opportunity = {
+          id: deal_id,
+        };
+      } else if (payload.deal_search_field && payload.deal_search_value) {
+        const deal = await searchRecord(
+          "Deals",
+          payload.deal_search_field,
+          payload.deal_search_value,
+        );
+
+        payloadData.Opportunity = {
+          id: deal.id,
+        };
+      }
+
+      // Received From Lookup
+
+      if (contact_id) {
+        payloadData.Received_From = {
+          id: contact_id,
+        };
+      } else if (payload.contact_search_field && payload.contact_search_value) {
+        const contact = await searchRecord(
+          "Contacts",
+          payload.contact_search_field,
+          payload.contact_search_value,
+        );
+
+        payloadData.Received_From = {
+          id: contact.id,
         };
       }
     }
@@ -205,15 +306,9 @@ async function writeRecords(payload) {
      * SEARCH + UPDATE
      */
 
-    const records = await searchRecord(module, search_field, search_value);
+    const record = await searchRecord(module, search_field, search_value);
 
-    if (!records.length) {
-      throw new Error("No matching record found");
-    }
-
-    const recordId = records[0].id;
-
-    return await updateRecord(module, recordId, data);
+    return await updateRecord(module, record.id, data);
   }
 
   return {

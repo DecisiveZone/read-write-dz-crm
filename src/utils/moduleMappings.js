@@ -9,7 +9,7 @@ module.exports = {
     apiName: "Contacts",
     companyLookup: "Account_Name",
   },
-  
+
   Deals: {
     apiName: "Deals",
     companyLookup: "Account_Name",
@@ -35,8 +35,14 @@ module.exports = {
     companyLookup: "Company",
   },
 
+  Document_Management: {
+    apiName: "Document_Management",
+    companyLookup: "Companies",
+  },
+
   Collections: {
     apiName: "Collections",
+    companyLookup: "Company_Name",
   },
 
   Master_Closures: {

@@ -24,6 +24,10 @@ async function updateRecord(
             id: recordId,
             ...data
           }
+        ],
+        trigger: [
+          "workflow",
+          "blueprint"
         ]
       }
     );
@@ -32,5 +36,5 @@ async function updateRecord(
 }
 
 module.exports = {
-  updateRecord
+  updateRecord,
 };
