@@ -1,43 +1,44 @@
 const axios = require("axios");
 
-let cachedToken = null;
-let tokenExpiry = null;
+const tokenCache = {};
 
-async function getAccessToken() {
+async function getAccessToken(crm) {
+  const envPrefix = crm === "live" ? "LIVE" : "SANDBOX";
 
-    const now = Date.now();
+  const now = Date.now();
 
-    if (
-        cachedToken &&
-        tokenExpiry &&
-        now < tokenExpiry
-    ) {
-        //console.log("Using Cached Token");
-        return cachedToken;
-    }
+  if (
+    tokenCache[crm] &&
+    tokenCache[crm].token &&
+    tokenCache[crm].expiry > now
+  ) {
+    return tokenCache[crm].token;
+  }
 
-    //console.log("Generating New Token");
+  const response = await axios.post(
+    `${process.env[`${envPrefix}_ZOHO_ACCOUNTS_URL`]}/oauth/v2/token`,
+    null,
+    {
+      params: {
+        refresh_token: process.env[`${envPrefix}_ZOHO_REFRESH_TOKEN`],
 
-    const response = await axios.post(
-        `${process.env.ZOHO_ACCOUNTS_URL}/oauth/v2/token`,
-        null,
-        {
-            params: {
-                refresh_token: process.env.ZOHO_REFRESH_TOKEN,
-                client_id: process.env.ZOHO_CLIENT_ID,
-                client_secret: process.env.ZOHO_CLIENT_SECRET,
-                grant_type: "refresh_token"
-            }
-        }
-    );
+        client_id: process.env[`${envPrefix}_ZOHO_CLIENT_ID`],
 
-    cachedToken = response.data.access_token;
+        client_secret: process.env[`${envPrefix}_ZOHO_CLIENT_SECRET`],
 
-    tokenExpiry = now + (3600 * 1000);
+        grant_type: "refresh_token",
+      },
+    },
+  );
 
-    return cachedToken;
+  tokenCache[crm] = {
+    token: response.data.access_token,
+    expiry: now + 3600 * 1000,
+  };
+
+  return response.data.access_token;
 }
 
 module.exports = {
-    getAccessToken
+  getAccessToken,
 };

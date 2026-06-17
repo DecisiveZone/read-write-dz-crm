@@ -9,6 +9,7 @@ const {
 
 async function readRecords(payload) {
   const {
+    crm,
     module,
     company_name,
     search_field,
@@ -27,34 +28,17 @@ async function readRecords(payload) {
     throw new Error(`Unsupported module ${module}`);
   }
 
-  /*
-   * RECORD ID SEARCH
-   */
-
   if (record_id) {
-    return await getRecordById(module, record_id);
+    return await getRecordById(crm, module, record_id);
   }
-
-  /*
-   * DOCUMENT MANAGEMENT
-   * SEARCH BY SALES CLOSURE ID
-   */
 
   if (module === "Document_Management" && sales_closure_id) {
-    return await searchDocumentManagementBySalesClosure(sales_closure_id);
+    return await searchDocumentManagementBySalesClosure(crm, sales_closure_id);
   }
-
-  /*
-   * GENERIC SEARCH
-   */
 
   if (search_field && search_value) {
-    return await searchRecord(module, search_field, search_value);
+    return await searchRecord(crm, module, search_field, search_value);
   }
-
-  /*
-   * COMPANY SEARCH
-   */
 
   if (!company_name) {
     throw new Error(
@@ -62,17 +46,13 @@ async function readRecords(payload) {
     );
   }
 
-  /*
-   * Accounts
-   */
-
   if (module === "Accounts") {
-    return await resolveCompany(company_name);
+    return await resolveCompany(crm, company_name);
   }
 
-  const company = await resolveCompany(company_name);
+  const company = await resolveCompany(crm, company_name);
 
-  return await searchByCompany(module, company.id);
+  return await searchByCompany(crm, module, company.id);
 }
 
 module.exports = {

@@ -1,38 +1,22 @@
 const zohoService = require("../services/zoho.service");
 const moduleMappings = require("./moduleMappings");
 
-async function updateRecord(
-  moduleName,
-  recordId,
-  data
-) {
-  const moduleConfig =
-    moduleMappings[moduleName];
+async function updateRecord(crm, moduleName, recordId, data) {
+  const moduleConfig = moduleMappings[moduleName];
 
   if (!moduleConfig) {
-    throw new Error(
-      `Unsupported module ${moduleName}`
-    );
+    throw new Error(`Unsupported module ${moduleName}`);
   }
 
-  const response =
-    await zohoService.put(
-      `/${moduleConfig.apiName}`,
+  return await zohoService.put(crm, `/${moduleConfig.apiName}`, {
+    data: [
       {
-        data: [
-          {
-            id: recordId,
-            ...data
-          }
-        ],
-        trigger: [
-          "workflow",
-          "blueprint"
-        ]
-      }
-    );
-
-  return response;
+        id: recordId,
+        ...data,
+      },
+    ],
+    trigger: ["workflow", "blueprint"],
+  });
 }
 
 module.exports = {

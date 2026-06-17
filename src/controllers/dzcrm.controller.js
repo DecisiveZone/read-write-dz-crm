@@ -3,7 +3,29 @@ const { writeRecords } = require("../services/write.service");
 
 exports.processRequest = async (req, res) => {
   try {
-    const { mode } = req.body;
+    const { mode, crm } = req.body;
+
+    /*
+     * CRM VALIDATION
+     */
+
+    if (!crm) {
+      return res.status(400).json({
+        success: false,
+        message: "crm is required. Allowed values: live, sandbox",
+      });
+    }
+
+    if (!["live", "sandbox"].includes(crm.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid crm value. Allowed values: live, sandbox",
+      });
+    }
+
+    /*
+     * MODE VALIDATION
+     */
 
     if (!mode) {
       return res.status(400).json({
@@ -11,6 +33,10 @@ exports.processRequest = async (req, res) => {
         message: "mode is required",
       });
     }
+
+    /*
+     * READ
+     */
 
     if (mode === "READ") {
       const result = await readRecords(req.body);
@@ -20,6 +46,10 @@ exports.processRequest = async (req, res) => {
         data: result,
       });
     }
+
+    /*
+     * WRITE
+     */
 
     if (mode === "WRITE") {
       const result = await writeRecords(req.body);

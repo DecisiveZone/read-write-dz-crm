@@ -1,14 +1,16 @@
 const axios = require("axios");
 const { getAccessToken } = require("./tokenManager");
 
-async function get(endpoint, params = {}) {
-  const token = await getAccessToken();
+function getApiUrl(crm) {
+  return crm === "live"
+    ? process.env.LIVE_ZOHO_API_URL
+    : process.env.SANDBOX_ZOHO_API_URL;
+}
 
-  // console.log("ZOHO_API_URL:", process.env.ZOHO_API_URL);
-  // console.log("ENDPOINT:", endpoint);
-  // console.log("FINAL URL:", `${process.env.ZOHO_API_URL}${endpoint}`);
+async function get(crm, endpoint, params = {}) {
+  const token = await getAccessToken(crm);
 
-  const response = await axios.get(`${process.env.ZOHO_API_URL}${endpoint}`, {
+  const response = await axios.get(`${getApiUrl(crm)}${endpoint}`, {
     headers: {
       Authorization: `Zoho-oauthtoken ${token}`,
     },
@@ -18,38 +20,26 @@ async function get(endpoint, params = {}) {
   return response.data;
 }
 
-async function post(endpoint, payload = {}) {
-  const token = await getAccessToken();
+async function post(crm, endpoint, payload = {}) {
+  const token = await getAccessToken(crm);
 
-//   console.log("TOKEN EXISTS =", !!token);
-//   console.log("URL =", `${process.env.ZOHO_API_URL}${endpoint}`);
-//   console.log("PAYLOAD =", JSON.stringify(payload, null, 2));
-
-  const response = await axios.post(
-    `${process.env.ZOHO_API_URL}${endpoint}`,
-    payload,
-    {
-      headers: {
-        Authorization: `Zoho-oauthtoken ${token}`,
-      },
+  const response = await axios.post(`${getApiUrl(crm)}${endpoint}`, payload, {
+    headers: {
+      Authorization: `Zoho-oauthtoken ${token}`,
     },
-  );
+  });
 
   return response.data;
 }
 
-async function put(endpoint, payload = {}) {
-  const token = await getAccessToken();
+async function put(crm, endpoint, payload = {}) {
+  const token = await getAccessToken(crm);
 
-  const response = await axios.put(
-    `${process.env.ZOHO_API_URL}${endpoint}`,
-    payload,
-    {
-      headers: {
-        Authorization: `Zoho-oauthtoken ${token}`,
-      },
+  const response = await axios.put(`${getApiUrl(crm)}${endpoint}`, payload, {
+    headers: {
+      Authorization: `Zoho-oauthtoken ${token}`,
     },
-  );
+  });
 
   return response.data;
 }

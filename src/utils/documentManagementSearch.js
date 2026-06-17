@@ -1,8 +1,9 @@
 const zohoService = require("../services/zoho.service");
 
-async function searchDocumentManagementBySalesClosure(salesClosureId) {
-  const response = await zohoService.get("/Document_Management", {
-    fields: "id,Name,Sales_Closure,Companies,Opportunity,Bulk_File_Upload_1,Bulk_File_Upload_2,Bulk_File_Upload_3,Bulk_File_Upload_4,Bulk_File_Upload_5,Owner,Document_Verification",
+async function searchDocumentManagementBySalesClosure(crm, salesClosureId) {
+  const response = await zohoService.get(crm, "/Document_Management", {
+    fields:
+      "id,Name,Sales_Closure,Companies,Opportunity,Bulk_File_Upload_1,Bulk_File_Upload_2,Bulk_File_Upload_3,Bulk_File_Upload_4,Bulk_File_Upload_5,Owner,Document_Verification",
   });
 
   const records = response.data || [];

@@ -6,6 +6,7 @@ const { updateRecord } = require("../utils/updateRecord");
 
 async function writeRecords(payload) {
   const {
+    crm,
     sub_mode,
     module,
     company_name,
@@ -40,7 +41,7 @@ async function writeRecords(payload) {
    */
 
   if (sub_mode === "CREATE" && module === "Accounts") {
-    return await createRecord(module, data);
+    return await createRecord(crm, module, data);
   }
 
   /*
@@ -57,7 +58,7 @@ async function writeRecords(payload) {
         throw new Error("company_name or company_id is required");
       }
 
-      const company = await resolveCompany(company_name);
+      const company = await resolveCompany(crm, company_name);
 
       companyId = company.id;
     }
@@ -84,6 +85,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
+          crm,
           "Deals",
           payload.deal_search_field,
           payload.deal_search_value,
@@ -103,6 +105,7 @@ async function writeRecords(payload) {
         payload.sales_closure_search_value
       ) {
         const salesClosure = await searchRecord(
+          crm,
           "Sales_Closures",
           payload.sales_closure_search_field,
           payload.sales_closure_search_value,
@@ -123,6 +126,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
+          crm,
           "Deals",
           payload.deal_search_field,
           payload.deal_search_value,
@@ -139,6 +143,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.license_search_field && payload.license_search_value) {
         const license = await searchRecord(
+          crm,
           "Licenses",
           payload.license_search_field,
           payload.license_search_value,
@@ -165,6 +170,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
+          crm,
           "Deals",
           payload.deal_search_field,
           payload.deal_search_value,
@@ -193,6 +199,7 @@ async function writeRecords(payload) {
         payload.sales_closure_search_value
       ) {
         const salesClosure = await searchRecord(
+          crm,
           "Sales_Closures",
           payload.sales_closure_search_field,
           payload.sales_closure_search_value,
@@ -248,6 +255,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.deal_search_field && payload.deal_search_value) {
         const deal = await searchRecord(
+          crm,
           "Deals",
           payload.deal_search_field,
           payload.deal_search_value,
@@ -266,6 +274,7 @@ async function writeRecords(payload) {
         };
       } else if (payload.contact_search_field && payload.contact_search_value) {
         const contact = await searchRecord(
+          crm,
           "Contacts",
           payload.contact_search_field,
           payload.contact_search_value,
@@ -280,7 +289,7 @@ async function writeRecords(payload) {
     // console.log("MODULE =", module);
     // console.log("PAYLOAD =", JSON.stringify(payloadData || data, null, 2));
 
-    return await createRecord(module, payloadData);
+    return await createRecord(crm, module, payloadData);
   }
 
   if (sub_mode === "UPDATE") {
@@ -299,16 +308,16 @@ async function writeRecords(payload) {
      */
 
     if (search_field.toLowerCase() === "id") {
-      return await updateRecord(module, search_value, data);
+      return await updateRecord(crm, module, search_value, data);
     }
 
     /*
      * SEARCH + UPDATE
      */
 
-    const record = await searchRecord(module, search_field, search_value);
+    const record = await searchRecord(crm, module, search_field, search_value);
 
-    return await updateRecord(module, record.id, data);
+    return await updateRecord(crm, module, record.id, data);
   }
 
   return {
